@@ -1,0 +1,202 @@
+from tkinter import *
+from matrix import *
+
+
+class Page1():
+    def __init__(self):
+        self.w = 500
+        self.h = 450
+        self.win = Tk()
+        self.win.geometry(f"{self.w}x{self.h}+300+200")
+        self.win.configure(bg="black")
+        self.win.title("rank of a matrix calculator")
+        self.win.resizable(0, 0)
+
+    def setText(self, text, path =  '' ,x=0.3, y=0.3, f_size = 26, color = '#D2F53C', pl = 'place'):
+        if path == '':
+            path = self.win
+        title = Label(
+            path,
+            text = text,
+            font = ("Arial balck",f_size),
+            bg = "black",
+            fg = color
+        )
+        title.place(relx = x, rely = y)
+
+    def textBox(self, path = '', x = 0.42, y = 0.5,f_size = 23, w = 10):
+        if path == '':
+            path = self.win
+        entry = Entry(
+            path,
+            fg = 'black',
+            bg = 'white',
+            width = w,
+            font=("Arial balck", f_size),
+            justify = 'center'
+        )
+        entry.place(relx = x, rely = y)
+        return entry
+
+    def click(self, path = '', x = 0.5, y = 0.8, text = "SET", f_size=12,h = 2, w = 6,fg = 'black', bg = '#FAA500', cmd = None):
+        if path == '':
+            path = self.win
+
+        hit = Button(
+            path,
+            text = text,font=("Arial black", f_size),
+            fg = fg,
+            bg = bg,
+            height = h,
+            width = w,
+            command = cmd
+        )
+        hit.place(relx = x, rely = y)
+
+class Page2():
+    def __init__(self, row, col):
+        self.r= row
+        self.c = col
+
+    def goBack(self):
+        self.ins.win.destroy()
+        st = Start()
+
+    def calculate(self):
+        self.values = []
+        for i in range(self.r):
+            val = []
+            for j in range(self.c):
+                val.append(int(self.mat[i][j].get()))
+            self.values.append(val)
+        mat_rank = rank(self.values)
+        self.ins.setText(text = f"Rank: {mat_rank}", x = 0.75, y = 0.8)
+    def invoke(self):
+        self.ins = Page1()
+        self.ins.win.geometry("600x500")
+        frame = Frame(
+            self.ins.win,
+            width = 300,
+            height = 300,
+        )
+        self.ins.setText(text = "Enter the elements",f_size= 14 , x = 0.15, y = 0.1, color = "#7E4BE7" )
+        frame.pack(expand=True)
+        self.mat = []
+        for i in range(self.r):
+            ele = []
+            for j in range(self.c):
+                entries = Entry(
+                    frame,
+                    fg='black',
+                    bg='white',
+                    font=("Arial black", 18),
+                    justify='center',
+                    width = 5
+                )
+                entries.grid(row = i, column = j, padx = 5, pady= 10)
+                ele.append(entries)
+            self.mat.append(ele)
+        cal = self.ins.click(
+            text = "calculate",
+            fg = "#040801",
+            bg = "#A4F356",
+            w = 10,
+            f_size=10,
+            h = 2,
+            x = 0.4,
+            y = 0.8,
+            cmd = self.calculate
+        )
+        back = self.ins.click(
+            text="<",
+            fg="#040801",
+            bg="#F37156",
+            w=3,
+            f_size=12,
+            h=1,
+            x=0.1,
+            y=0.82,
+            cmd = self.goBack
+        )
+
+        self.ins.win.mainloop()
+
+
+class Start:
+    def isValid(self):
+        try:
+            row = int(self.entry1.get())
+            col = int(self.entry2.get())
+        except ValueError as ve:
+            return
+        if row <= 0 and col <= 0:
+            return
+        self.after_set(row, col)
+
+    def after_set(self,row, col):
+        self.instance_1.win.destroy()
+        self.instance_2 = Page2(row, col)
+        self.instance_2.invoke()
+
+    def __init__(self):
+        self.instance_1 = Page1()
+        self.instance_1.setText("Find The Rank", x=0.25)
+        self.instance_1.setText("Of Matrix", x=0.32, y=0.4)
+        self.instance_1.setText("set matrix : ", x=0.12, y=0.65, color='#FF00D8', f_size=18)
+        self.entry1 = self.instance_1.textBox(x=0.42, y=0.65, f_size=18, w=4)
+        self.instance_1.setText("x", x=0.55, y=0.65, color='#FF00D8', f_size=18)
+        self.entry2 = self.instance_1.textBox(x=0.62, y=0.65, f_size=18, w=4)
+        self.instance_1.click(cmd=self.isValid)
+        self.instance_1.win.mainloop()
+
+
+st = Start()
+
+
+def rank(matrix, file_path = 'outputs.txt'):
+    """
+    Calculates the rank of a matrix using Gaussian Elimination
+
+    args:
+
+    takes a matrix as input
+
+    Returns:
+
+    The rank of  the matrix
+
+    """
+
+    row = len(matrix)
+    col = len(matrix[0])
+    f = open(file_path, 'a')
+    for i in range(row-1):
+        p = i
+        for j in range(i + 1, row ):
+            if abs(matrix[j][i]) < abs(matrix[p][i]):
+                p = j
+
+        matrix[i], matrix[p] = matrix[p], matrix[i]
+
+        for j in range(i + 1, row):
+            f1 = matrix[i][i]
+            f2 = matrix[j][i]
+
+            for k in range(i, col):
+                matrix[j][k]  = f1*matrix[j][k] - f2*matrix[i][k]
+
+
+            for m in range(len(matrix)):
+                for l in range(len(matrix[0])):
+                    f.write(f"{str(matrix[m][l])}  ")
+                f.write("\n")
+
+    rank = 0
+    print(matrix)
+    for rows in matrix:
+        if sum(rows) != 0:
+            rank += 1
+    f.write(str(rank))
+    f.close()
+    return rank
+
