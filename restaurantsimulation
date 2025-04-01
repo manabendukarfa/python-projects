@@ -1,0 +1,281 @@
+from tkinter import *
+from PIL import Image,ImageTk
+
+win = Tk()
+win.geometry("1590x900+100+50")
+win.resizable(0,0)
+win.title("Riku\'s kitchen")
+win.config(bg = "black")
+
+img1 = Image.open("LOGO.png")
+logo = ImageTk.PhotoImage(img1)
+logolab = Label(
+    win,
+    image = logo
+)
+logolab.place(relx = 0.0, rely = 0.2)
+l1 = Frame(
+    win,
+    width = 505,
+    height = 200,
+    bg = "red"
+)
+l1.place(relx = 0.0, rely = 0.0)
+l2 = Frame(
+    win,
+    width = 505,
+    height = 300,
+    bg = "blue"
+)
+l2.place(relx = 0.0, rely = 0.7)
+
+desp = Label(
+    l2,
+    text = "Flavors tell stories,\nand\n every dish is a page!",
+    font = ("Pristina",32,"bold"),
+    fg = "white",
+    bg = "blue"
+)
+desp.place(x = 70,y=30)
+
+menuFrame = Frame(
+    win,
+    width = 550,
+    height = 900,
+    bg = "#080759"
+
+)
+menuFrame.place(x = 510, y = 0)
+
+dishFrame = Frame(
+    win,
+    width = 630,
+    height = 450,
+    bg = "black"
+)
+dishFrame.place(x = 1070, y = 0)
+
+itemFrame = Frame(
+    win,
+    width = 630,
+    height = 450,
+    bg = "black"
+)
+itemFrame.place(x = 1070, y = 450)
+
+
+menuLabel = Label(
+    menuFrame,
+    text = "MENU",
+    font = ("Arial Rounded MT",26,"bold"),
+    bg = "#080759",
+    fg = "white"
+)
+menuLabel.place(x = 200,  y = 20)
+
+menuList = Frame(
+    menuFrame,
+    width = 500,
+    height = 600,
+    padx = 2,
+    pady = 2,
+    bg = "white"
+)
+menuList.place(x = 25, y = 150)
+
+dishes = {
+    "BUTTER CHICKEN": 450,
+    "CHOLE KULCHE": 95,
+    "PANEER MASALA": 115,
+    "LAMB BIRYANI": 430,
+    "CHICKEN TANDOORI": 435,
+    "MUSTURD IILISH": 550,
+    "PESHAWARI CHICKEN": 450,
+    "CRAB MASALA": 900
+}
+
+d1 = Label(menuList, text = f"BUTTER CHICKEN........₹450", font = ("Arial Rounded MT",18,"bold"))
+d1.place(x = 20, y = 20)
+
+d2 = Label(menuList, text = f"CHOLE KULCHE.............₹95", font = ("Arial Rounded MT",18,"bold"))
+d2.place(x = 20, y = 80)
+
+d3 = Label(menuList, text = f"PANEER MASALA........₹115", font = ("Arial Rounded MT",18,"bold"))
+d3.place(x = 20, y = 140)
+
+d4 = Label(menuList, text = f"LAMB BIRYANI.............₹430", font = ("Arial Rounded MT",18,"bold"))
+d4.place(x = 20, y = 200)
+
+d5 = Label(menuList, text = f"CHICKEN TANDOORI....₹435", font = ("Arial Rounded MT",18,"bold"))
+d5.place(x = 20, y = 260)
+
+d6 = Label(menuList, text = f"MUSTURD IILISH..........₹550", font = ("Arial Rounded MT",18,"bold"))
+d6.place(x = 20, y = 320)
+
+d7 = Label(menuList, text = f"PESHAWARI CHICKEN.₹450", font = ("Arial Rounded MT",18,"bold"))
+d7.place(x = 20, y = 380)
+
+d8 = Label(menuList, text = f"CRAB MASALA.............₹900", font = ("Arial Rounded MT",18,"bold"))
+d8.place(x = 20, y = 440)
+
+d = [d1,d2,d3,d4,d5,d6,d7,d8]
+cbtn = []
+yunit = 20
+for i in range(8):
+    cbtn.append(Button(menuList,relief = "raised",text = "DISPLAY",font = ("Arial Rounded MT",12,"bold"), bg = "#2fee39", fg = "black"))
+    cbtn[i].place(x= 390,y = yunit)
+    yunit = yunit+60
+
+imgPT = [
+    "butterchk_1.jpg",
+    "chkulche_1.jpg",
+    "paneer_1.jpg",
+    "lamb_1.jpg",
+    "tandoorichk_1.jpg",
+    "musturdiilsish_1.jpg",
+    "peshwari_1.jpg",
+    "crab_1.jpg"
+]
+
+images = []
+dishImg = []
+dishLabels = []
+for i in range(len(imgPT)):
+    image  = Image.open(imgPT[i])
+    photo = ImageTk.PhotoImage(image)
+    dishImg.append(photo)
+
+
+
+dishLabels = Label(
+    dishFrame,
+    image = dishImg[0]
+)
+dishLabels.place(x=0, y=0)
+
+dish_no = 0
+def display(n):
+    global dish_no
+    dish_no = n
+    dishLabels.configure(image = dishImg[n])
+
+
+
+
+for i in range(8):
+    cbtn[i].configure(command = lambda i=i : display(i))
+
+prices = [x for x in dishes.values()]
+total = 0
+def add():
+    global total
+    dish = d[dish_no].cget("text")
+    total += prices[dish_no]
+    tol.configure(text = f"Total: ₹{total}")
+    orders.insert(END,dish+"\n")
+
+addTo = Button(
+menuList,relief = "raised",text = "ADD TO ORDER",font = ("Arial Rounded MT",16,"bold"), bg = "#ff9415", fg = "black",
+command = add
+)
+addTo.place(x = 20, y = 500)
+
+def discard():
+    global total
+
+    lines = orders.get("1.0", END).strip().split("\n")
+
+    if lines:
+        last_item = lines[-1]
+        last_price = int(last_item.split("₹")[-1])
+
+        total -= last_price
+        tol.configure(text=f"Total: ₹{total}")
+
+        orders.delete("end-2l", "end-1l")
+
+
+
+rem = Button(
+menuList,relief = "raised",text = " REMOVE ",font = ("Arial Rounded MT",16,"bold"), bg = "red", fg = "white",
+command = discard
+)
+rem.place(x = 350, y = 500)
+
+
+o1 = Label(
+    itemFrame,
+    text = "Your Order",
+    bg = "black",
+    fg = "white",
+    width = 32,
+    font = ("Arial Rounded MT",18,"bold")
+)
+o1.place(x = 10, y = 10)
+
+orders = Text(
+    itemFrame,
+    width = 39,
+    height = 11,
+    bg = "grey",
+    fg = "white",
+    font = ("Arial Rounded MT",18,"bold")
+)
+orders.place(x = 0, y =56)
+
+tol = Label(
+    itemFrame,
+    text = "Total: ₹0",
+    bg = "black",
+    fg = "white",
+    width = 26,
+    font = ("Arial Rounded MT",20,"bold")
+)
+tol.place(x = 10, y = 390)
+
+final_label = Label(
+    menuFrame,
+    text= "",
+    font = ("Arial Rounded MT",18,"bold"),
+    fg = "#2cff73",
+    bg = "#080759"
+)
+final_label.place(x = 40, y = 800)
+
+def confirm():
+    global total
+    final_label.configure(text = "Order Confirmed!")
+    with open("bill.txt","a", encoding="utf-8") as bill:
+        bill.write("\n\n------------------Riku's Kitchen--------------------\n\n\n-----------your order------------\n\n")
+        items = orders.get("1.0","end-1c")
+        bill.write(items)
+        bill.write(f"\n\nTotal Price: ₹{total}\n\n")
+
+
+final = Button(
+    menuFrame,
+    text = "CONFIRM ORDER",
+    font = ("Arial Rounded MT",16,"bold"),
+    bg = "#2cc6ff",
+    fg = "#080759",
+    command = confirm
+)
+final.place(x=330,y=760)
+
+def res():
+    orders.delete("1.0",END)
+    tol.configure(text = "Total: ₹0")
+    final_label.configure(text="")
+
+reset = Button(
+    menuFrame,
+    text = "RESET ALL",
+    font = ("Arial Rounded MT",16,"bold"),
+    bg = "#ffdc2c",
+    fg = "#080759",
+    width = 14,
+    command = res
+)
+reset.place(x=330,y=840)
+
+win.mainloop()
